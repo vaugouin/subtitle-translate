@@ -1,0 +1,58 @@
+2025-04-13 15:55:18,579 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_155518.log
+2025-04-13 15:55:18,583 - __main__ - INFO - Python version: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]
+2025-04-13 15:55:18,588 - __main__ - INFO - Current working directory: C:\Users\vaugo\Downloads\Python\subtitle-translate
+2025-04-13 15:55:18,597 - __main__ - INFO - File and API key provided, waiting for translate button click
+2025-04-13 15:55:18,677 - httpcore.connection - DEBUG - close.started
+2025-04-13 15:55:18,679 - httpcore.connection - DEBUG - close.complete
+2025-04-13 15:57:13,996 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_155713.log
+2025-04-13 15:57:13,999 - __main__ - INFO - Python version: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]
+2025-04-13 15:57:14,003 - __main__ - INFO - Current working directory: C:\Users\vaugo\Downloads\Python\subtitle-translate
+2025-04-13 15:57:17,676 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_155717.log
+2025-04-13 15:57:17,681 - __main__ - INFO - Python version: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]
+2025-04-13 15:57:17,684 - __main__ - INFO - Current working directory: C:\Users\vaugo\Downloads\Python\subtitle-translate
+2025-04-13 15:57:17,694 - __main__ - INFO - File and API key provided, waiting for translate button click
+2025-04-13 15:57:23,023 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_155723.log
+2025-04-13 15:57:23,027 - __main__ - INFO - Python version: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]
+2025-04-13 15:57:23,031 - __main__ - INFO - Current working directory: C:\Users\vaugo\Downloads\Python\subtitle-translate
+2025-04-13 15:57:23,041 - __main__ - INFO - Translate button clicked. File uploaded: True, API key provided: True
+2025-04-13 15:57:23,044 - __main__ - INFO - File size: 100333 bytes
+2025-04-13 15:57:23,981 - __main__ - INFO - Initialized OpenAI LLM with model: gpt-4-turbo
+2025-04-13 15:57:23,985 - __main__ - INFO - Read SRT file content, size: 74421 characters
+2025-04-13 15:57:24,063 - __main__ - INFO - Split text into 1 chunks with chunk_size=20
+2025-04-13 15:57:25,278 - __main__ - WARNING - Found 1 unusually large chunks (>1000 chars) at indices: [0]...
+2025-04-13 15:57:25,283 - __main__ - INFO - Created translation chain with prompt template
+2025-04-13 15:57:25,285 - __main__ - INFO - Starting translation with batch_size=50
+2025-04-13 15:57:25,287 - __main__ - INFO - Processing batch 1/1 with 1 chunks
+2025-04-13 15:57:25,289 - __main__ - INFO - Separated metadata from content for 1 chunks
+2025-04-13 15:57:25,290 - __main__ - INFO - Processing batch 1 of 1
+2025-04-13 15:57:25,298 - __main__ - INFO - Batch contains 1 chunks
+2025-04-13 15:57:25,305 - __main__ - INFO - Starting translation of chunk 1 of 1
+2025-04-13 15:57:25,695 - openai._base_client - DEBUG - Sending HTTP Request: POST https://api.openai.com/v1/chat/completions
+2025-04-13 15:57:25,695 - httpcore.connection - DEBUG - connect_tcp.started host='api.openai.com' port=443 local_address=None timeout=None socket_options=None
+2025-04-13 15:57:25,725 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000029C7F9A45F0>
+2025-04-13 15:57:25,725 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x0000029C7F8465D0> server_hostname='api.openai.com' timeout=None
+2025-04-13 15:57:25,737 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x0000029C7F9A46B0>
+2025-04-13 15:57:25,738 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-04-13 15:57:25,738 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-04-13 15:57:25,738 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-04-13 15:57:25,758 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-04-13 15:57:25,758 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-04-13 15:58:15,020 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Sun, 13 Apr 2025 13:58:14 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'access-control-expose-headers', b'X-Request-ID'), (b'openai-organization', b'user-jbvbg27foht5l874o2u3bms0'), (b'openai-processing-ms', b'49006'), (b'openai-version', b'2020-10-01'), (b'x-ratelimit-limit-requests', b'500'), (b'x-ratelimit-limit-tokens', b'30000'), (b'x-ratelimit-remaining-requests', b'499'), (b'x-ratelimit-remaining-tokens', b'4876'), (b'x-ratelimit-reset-requests', b'120ms'), (b'x-ratelimit-reset-tokens', b'50.248s'), (b'x-request-id', b'req_5c6cafc0ec83d3362b704c8f4f178124'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=f6e3sP4SANwbqG2h2pmu9DrIhGvJfBp6mSMNIkBlk3I-1744552694-1.0.1.1-_153snWpXfn6rKpS0SGEs8hayyhiFJrvUZrAgQgPCzP.uYQkmHwk57_kUOVgbv0Qi9AREzGo9.4JfF5rZOgpQWY7pfPoew7GsY1f4il7OEI; path=/; expires=Sun, 13-Apr-25 14:28:14 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'X-Content-Type-Options', b'nosniff'), (b'Set-Cookie', b'_cfuvid=53LnWkFBM3rU1MjaZtgeCE7gpAY8AHXfY0uB0T420Iw-1744552694969-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'92fb78f39f675903-CDG'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2025-04-13 15:58:15,021 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-13 15:58:15,027 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-04-13 15:58:15,027 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-04-13 15:58:15,027 - httpcore.http11 - DEBUG - response_closed.started
+2025-04-13 15:58:15,030 - httpcore.http11 - DEBUG - response_closed.complete
+2025-04-13 15:58:15,030 - openai._base_client - DEBUG - HTTP Response: POST https://api.openai.com/v1/chat/completions "200 OK" Headers([('date', 'Sun, 13 Apr 2025 13:58:14 GMT'), ('content-type', 'application/json'), ('transfer-encoding', 'chunked'), ('connection', 'keep-alive'), ('access-control-expose-headers', 'X-Request-ID'), ('openai-organization', 'user-jbvbg27foht5l874o2u3bms0'), ('openai-processing-ms', '49006'), ('openai-version', '2020-10-01'), ('x-ratelimit-limit-requests', '500'), ('x-ratelimit-limit-tokens', '30000'), ('x-ratelimit-remaining-requests', '499'), ('x-ratelimit-remaining-tokens', '4876'), ('x-ratelimit-reset-requests', '120ms'), ('x-ratelimit-reset-tokens', '50.248s'), ('x-request-id', 'req_5c6cafc0ec83d3362b704c8f4f178124'), ('strict-transport-security', 'max-age=31536000; includeSubDomains; preload'), ('cf-cache-status', 'DYNAMIC'), ('set-cookie', '__cf_bm=f6e3sP4SANwbqG2h2pmu9DrIhGvJfBp6mSMNIkBlk3I-1744552694-1.0.1.1-_153snWpXfn6rKpS0SGEs8hayyhiFJrvUZrAgQgPCzP.uYQkmHwk57_kUOVgbv0Qi9AREzGo9.4JfF5rZOgpQWY7pfPoew7GsY1f4il7OEI; path=/; expires=Sun, 13-Apr-25 14:28:14 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('x-content-type-options', 'nosniff'), ('set-cookie', '_cfuvid=53LnWkFBM3rU1MjaZtgeCE7gpAY8AHXfY0uB0T420Iw-1744552694969-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None'), ('server', 'cloudflare'), ('cf-ray', '92fb78f39f675903-CDG'), ('content-encoding', 'gzip'), ('alt-svc', 'h3=":443"; ma=86400')])
+2025-04-13 15:58:15,034 - openai._base_client - DEBUG - request_id: req_5c6cafc0ec83d3362b704c8f4f178124
+2025-04-13 15:58:15,037 - __main__ - INFO - Successfully translated chunk 1
+2025-04-13 15:58:15,041 - __main__ - INFO - Translation preview: Salut ! - Salut ! Quoi de neuf ?
+
+2
+00:02:15,010 -...
+2025-04-13 15:58:15,049 - __main__ - INFO - Added 1 translated chunks to results
+2025-04-13 15:58:15,055 - __main__ - INFO - Progress: 100.0% complete
+2025-04-13 15:58:15,058 - __main__ - INFO - Completed all translations. Total chunks translated: 1
+2025-04-13 15:58:15,061 - __main__ - INFO - Joined all translations. Final output size: 2511 characters
+2025-04-13 15:58:15,115 - __main__ - INFO - Cleared progress indicators
+2025-04-13 15:58:15,121 - __main__ - INFO - Translation completed successfully with no errors

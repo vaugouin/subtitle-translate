@@ -1,0 +1,8 @@
+2025-04-13 12:12:30,244 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_121230.log
+2025-04-13 12:12:48,380 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_121248.log
+2025-04-13 12:12:59,729 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_121259.log
+2025-04-13 12:12:59,863 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_121259.log
+2025-04-13 12:13:01,683 - __main__ - INFO - Processing batch 1 of 1
+2025-04-13 12:14:04,045 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-04-13 12:14:04,077 - __main__ - INFO - Successfully translated chunk 1
+2025-04-13 12:15:19,223 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_121519.log

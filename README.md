@@ -69,18 +69,6 @@ docker-compose up
 5. Wait for the translation process to complete
 6. Download the translated subtitle file
 
-## Utilities
-
-### SRT Normalization
-
-The project includes a utility script (`normalize_srt.py`) for normalizing SRT files before translation:
-
-```
-python normalize_srt.py path/to/subtitles.srt -o path/to/output.srt
-```
-
-This helps ensure proper formatting and compatibility with the translator.
-
 ## Logging
 
 The application includes comprehensive logging capabilities that can be enabled by setting `logging_enabled = True` in the `app.py` file. Logs are stored in the `logs` directory.

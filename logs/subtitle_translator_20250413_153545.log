@@ -1,0 +1,6 @@
+2025-04-13 15:35:45,435 - __main__ - INFO - Starting application. Logs will be saved to logs\subtitle_translator_20250413_153545.log
+2025-04-13 15:35:45,445 - __main__ - INFO - Python version: 3.12.3 (tags/v3.12.3:f6650f9, Apr  9 2024, 14:05:25) [MSC v.1938 64 bit (AMD64)]
+2025-04-13 15:35:45,451 - __main__ - INFO - Current working directory: C:\Users\vaugo\Downloads\Python\subtitle-translate
+2025-04-13 15:35:45,464 - __main__ - INFO - File and API key provided, waiting for translate button click
+2025-04-13 15:35:45,534 - httpcore.connection - DEBUG - close.started
+2025-04-13 15:35:45,539 - httpcore.connection - DEBUG - close.complete
