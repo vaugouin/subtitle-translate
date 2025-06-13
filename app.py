@@ -64,10 +64,15 @@ if 'errors' not in st.session_state:
     st.session_state.errors = []
     logger.info("Initialized empty errors in session state")
 
-# Sidebar for API key
+# Sidebar for API key and settings
 with st.sidebar:
     api_key = st.text_input("Enter OpenAI API Key", type="password")
     st.caption("Your API key is not stored and will be cleared when you refresh the page")
+    
+    # Add group size setting
+    st.subheader("Translation Settings")
+    group_size = st.slider("Group Size (chunks per API call)", min_value=1, max_value=10, value=5, 
+    help="Higher values reduce API calls but may affect quality. Each group is translated in a single API call.")
     
     # Add debug section in sidebar
     with st.expander("Debug Information"):
@@ -102,7 +107,8 @@ with st.sidebar:
 uploaded_file = st.file_uploader("Upload your SRT file", type=['srt'])
 target_language = st.selectbox(
     "Select target language",
-    ["French", "English", "Spanish", "German", "Italian", "Portuguese", "Polish", "Japanese", "Chinese", "Korean"]
+    ["French", "English", "Spanish", "German", "Italian", "Portuguese", "Polish", "Japanese", "Chinese", "Korean",
+     "Arabic", "Hindi", "Russian", "Bengali", "Indonesian", "Malay", "Turkish", "Vietnamese", "Thai", "Urdu", "Swahili"]
 )
 
 # Add a translate button
@@ -192,19 +198,35 @@ if uploaded_file and api_key and translate_button:
         status_text = st.empty()
         error_placeholder = st.empty()
         
-        # Prompt template
+        # Define a unique delimiter for chunk separation
+        CHUNK_DELIMITER = "###CHUNK_DELIMITER###"
+        
+        # Prompt templates - one for individual chunks and one for batch translation
         translate_chunk_prompt_template = """You are an experienced translator to {target_language}. 
         Translate the following subtitle text to {target_language}.
         Do not add any comment to the answer, only the translated text. 
         Text: {chunk}"""
         translate_chunk_prompt = PromptTemplate.from_template(translate_chunk_prompt_template)
         translate_chunk_chain = translate_chunk_prompt | llm | StrOutputParser()
-        logger.info("Created translation chain with prompt template")
+        
+        # Batch translation prompt template
+        batch_translate_prompt_template = """You are an experienced translator to {target_language}.
+        Translate the following subtitle texts to {target_language}.
+        Each subtitle chunk is separated by the delimiter: {delimiter}
+        Maintain the exact same delimiter in your response to separate each translated chunk.
+        Do not add any comments, only the translated text with delimiters.
+        
+        Text to translate:
+        {batch_chunks}"""
+        batch_translate_prompt = PromptTemplate.from_template(batch_translate_prompt_template)
+        batch_translate_chain = batch_translate_prompt | llm | StrOutputParser()
+        logger.info("Created translation chains with prompt templates")
         
         # Process chunks with progress tracking
         translations = []
-        batch_size = 50
-        logger.info(f"Starting translation with batch_size={batch_size}")
+        batch_size = 50  # Number of chunks to process in one progress update
+        group_size = 5   # Number of chunks to send in a single API call
+        logger.info(f"Starting translation with batch_size={batch_size}, group_size={group_size}")
         
         for i in range(0, len(chunks), batch_size):
             batch_chunks = chunks[i:i+batch_size]
@@ -229,44 +251,74 @@ if uploaded_file and api_key and translate_button:
             
             logger.info(f"Separated metadata from content for {len(processed_chunks)} chunks")
             
-            # Translate only the content parts with error handling for each chunk
+            # Translate content in groups to reduce API calls
             batch_translations = []
             try:
                 logger.info(f"Processing batch {i//batch_size + 1} of {(len(chunks) + batch_size - 1)//batch_size}")
                 logger.info(f"Batch contains {len(processed_chunks)} chunks")
                 
-                # Process each chunk individually to isolate errors
-                for idx, chunk in enumerate(processed_chunks):
-                    chunk_num = i + idx + 1
-                    logger.info(f"Starting translation of chunk {chunk_num} of {len(chunks)}")
-                    logger.info(f"Chunk {chunk_num} content preview: {chunk[:50]}...")
+                # Process chunks in groups to reduce API calls
+                for j in range(0, len(processed_chunks), group_size):
+                    group = processed_chunks[j:j+group_size]
+                    group_num = j // group_size + 1
+                    group_start_idx = i + j + 1
+                    group_end_idx = min(i + j + len(group), len(chunks))
+                    logger.info(f"Translating group {group_num} (chunks {group_start_idx}-{group_end_idx}) with {len(group)} chunks")
+                    
+                    # Skip empty groups
+                    if all(chunk.strip() == "" for chunk in group):
+                        logger.info(f"Group {group_num} contains only empty chunks, skipping translation")
+                        batch_translations.extend([""] * len(group))
+                        continue
                     
                     try:
-                        translation = translate_chunk_chain.invoke({
-                            'chunk': chunk,
-                            'target_language': target_language
-                        })
-                        batch_translations.append(translation)
-                        logger.info(f"Successfully translated chunk {chunk_num}")
-                        logger.info(f"Translation preview: {translation[:50]}...")
+                        # Join chunks with delimiter for batch translation
+                        joined_chunks = CHUNK_DELIMITER.join(group)
+                        logger.info(f"Combined {len(group)} chunks with delimiter for group translation")
+                        logger.info(f"Combined content preview: {joined_chunks[:100]}...")
                         
-                        # Force log flush after each translation
+                        # Translate the entire group at once
+                        translation_result = batch_translate_chain.invoke({
+                            'batch_chunks': joined_chunks,
+                            'target_language': target_language,
+                            'delimiter': CHUNK_DELIMITER
+                        })
+                        
+                        # Split the result back into individual translations
+                        group_translations = translation_result.split(CHUNK_DELIMITER)
+                        logger.info(f"Split response into {len(group_translations)} individual translations")
+                        
+                        # Handle case where we might get fewer translations than input chunks
+                        if len(group_translations) < len(group):
+                            logger.warning(f"Got fewer translations ({len(group_translations)}) than input chunks ({len(group)})")
+                            # Pad with empty strings or original content as needed
+                            group_translations.extend([""] * (len(group) - len(group_translations)))
+                        elif len(group_translations) > len(group):
+                            logger.warning(f"Got more translations ({len(group_translations)}) than input chunks ({len(group)})")
+                            # Truncate extra translations
+                            group_translations = group_translations[:len(group)]
+                        
+                        batch_translations.extend(group_translations)
+                        logger.info(f"Successfully translated group {group_num}")
+                        logger.info(f"First translation preview: {group_translations[0][:50]}...")
+                        
+                        # Force log flush after each group translation
                         for handler in logger.handlers:
                             handler.flush()
-                            
-                    except Exception as chunk_error:
-                        error_msg = f"Error translating chunk {chunk_num}: {str(chunk_error)}"
+                        
+                    except Exception as group_error:
+                        error_msg = f"Error translating group {group_num}: {str(group_error)}"
                         logger.error(error_msg)
                         st.session_state.errors.append(error_msg)
                         # Use original text if translation fails
-                        batch_translations.append(chunk)
+                        batch_translations.extend(group)
                         # Show error in UI but continue processing
-                        error_placeholder.error(f"Error on chunk {chunk_num}: {str(chunk_error)}")
+                        error_placeholder.error(f"Error on group {group_num}: {str(group_error)}")
                         
                         # Force log flush after error
                         for handler in logger.handlers:
                             handler.flush()
-                            
+                
             except Exception as batch_error:
                 error_msg = f"Error processing batch starting at chunk {i+1}: {str(batch_error)}"
                 logger.error(error_msg)

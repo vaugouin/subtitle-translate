@@ -1,6 +1,6 @@
 # Subtitle Translator 🎬
 
-A streamlined web application for translating subtitle files (.srt) to various languages using OpenAI's language models.
+A streamlined web application for translating subtitle files (.srt) to various languages using OpenAI's language models with optimized batch processing.
 
 ## Overview
 
@@ -8,9 +8,10 @@ Subtitle Translator is a Streamlit-based application that allows users to easily
 
 ## Features
 
-- **Multiple Language Support**: Translate subtitles to French, English, Spanish, German, Italian, Portuguese, Polish, Japanese, Chinese, and Korean
+- **Extensive Language Support**: Translate subtitles to 21 languages including French, English, Spanish, German, Italian, Portuguese, Polish, Japanese, Chinese, Korean, Arabic, Hindi, Russian, Bengali, Indonesian, Malay, Turkish, Vietnamese, Thai, Urdu, and Swahili
+- **Optimized Batch Processing**: Groups multiple subtitle chunks into a single API call, significantly reducing API costs and improving performance
+- **Configurable Group Size**: Adjust the number of chunks processed per API call via the user interface
 - **SRT File Processing**: Handles .srt files with proper formatting preservation
-- **Batch Processing**: Efficiently processes subtitles in chunks to optimize translation quality and API usage
 - **Error Handling**: Robust error handling with detailed logging for troubleshooting
 - **Debug Information**: Provides debug information and logs for transparency
 - **Download Options**: Download translated subtitles as .srt files
@@ -65,9 +66,10 @@ docker-compose up
 1. Enter your OpenAI API key in the sidebar
 2. Upload your .srt subtitle file
 3. Select the target language for translation
-4. Click "Translate"
-5. Wait for the translation process to complete
-6. Download the translated subtitle file
+4. Adjust the group size in the sidebar settings (optional)
+5. Click "Translate"
+6. Wait for the translation process to complete
+7. Download the translated subtitle file
 
 ## Logging
 
@@ -81,3 +83,22 @@ This project is open source and available for personal and commercial use.
 
 - Built with [Streamlit](https://streamlit.io/)
 - Powered by [LangChain](https://www.langchain.com/) and [OpenAI](https://openai.com/)
+
+## Recent Improvements
+
+### June 2025 Updates
+
+- **Optimized Translation Processing**: Implemented a grouping mechanism that combines multiple subtitle chunks into a single API call, significantly reducing the number of API calls and improving performance
+- **Configurable Group Size**: Added a slider in the sidebar to let users adjust how many chunks are processed in a single API call (1-10)
+- **Expanded Language Support**: Added support for 11 additional languages with large global audiences:
+  - Arabic
+  - Hindi
+  - Russian
+  - Bengali
+  - Indonesian
+  - Malay
+  - Turkish
+  - Vietnamese
+  - Thai
+  - Urdu
+  - Swahili
