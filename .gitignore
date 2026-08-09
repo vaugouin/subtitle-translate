@@ -1,0 +1,7 @@
+
+# Claude Code / agent local tooling
+.claude/
+.agents/
+
+# Logs d'execution
+logs/
