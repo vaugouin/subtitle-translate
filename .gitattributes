@@ -1,0 +1,50 @@
+# Line endings are LF, in the repository AND in the working tree, on every
+# platform. `text=auto` alone only fixes the repository side and leaves checkout
+# to core.autocrlf, which is true on the Windows dev machine: git then warns on
+# every command that it will rewrite LF files as CRLF, and the working tree
+# drifts into a mix of CRLF, LF and both-at-once files. `eol=lf` settles it, and
+# it is the right default across this stack anyway, since everything runs on
+# Linux inside Docker.
+#
+# What it costs when it is missing is not theoretical. A CRLF shebang fails
+# outright and unhelpfully ("bad interpreter: /bin/bash^M"), and the stacks on
+# the VPS are deployed by copy rather than by clone, so a Windows checkout that
+# gained CRLF carries it straight to the server. In tmdb-front a config file
+# deployed as CRLF against an LF copy produced a permanent diff, which someone
+# silenced with git's `skip-worktree` bit, which in turn hid real drift in four
+# other files and blocked deploys for months.
+#
+# Stack-wide convention, aligned on tmdb-crawler. If a Windows checkout shows
+# files as modified right after this lands, the fix is `git add --renormalize .`,
+# never turning the rules off.
+* text=auto eol=lf
+
+# Explicit text files (LF everywhere, per the rule above)
+*.py    text
+*.sql   text
+*.md    text
+*.sh    text
+*.txt   text
+*.json  text
+*.yml   text
+*.yaml  text
+*.cfg   text
+*.ini   text
+*.conf  text
+*.env   text
+Dockerfile text
+.gitattributes text
+
+# Binary files (never normalized)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.gz    binary
+*.zip   binary
+*.pdf   binary
+*.db    binary
+*.xlsx  binary
+*.docx  binary
