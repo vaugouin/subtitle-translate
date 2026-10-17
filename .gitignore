@@ -5,3 +5,4 @@
 
 # Logs d'execution
 logs/
+__pycache__/
