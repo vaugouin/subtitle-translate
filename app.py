@@ -1,5 +1,6 @@
 import streamlit as st
-from langchain_openai import ChatOpenAI
+from openai import OpenAI
+from langchain_core.runnables import RunnableLambda
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -9,6 +10,29 @@ import logging
 import traceback
 import sys
 from datetime import datetime
+
+# LLM-TASKS-006 (2026-10-17): gpt-4-turbo is replaced by gpt-6-sol. Same batch prompt on 20 film
+# subtitles to French: every delimiter kept, line breaks kept, more idiomatic, about 1.5 s per call
+# against 4 s. The GPT-6 line refuses an explicit temperature, which the old langchain-openai
+# ChatOpenAI always sent, so the call goes through the OpenAI SDK with a low reasoning effort.
+# OPENAI_MODEL overrides it.
+STRTRANSLATIONMODEL = os.getenv("OPENAI_MODEL", "gpt-6-sol")
+
+
+def f_make_llm(api_key: str, model: str = STRTRANSLATIONMODEL):
+    """Return a runnable that sends a rendered prompt to `model` and returns its text."""
+    client = OpenAI(api_key=api_key)
+    sampling = {"temperature": 0.7} if model.startswith("gpt-4") else {"reasoning_effort": "low"}
+
+    def _call(prompt_value) -> str:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt_value.to_string()}],
+            **sampling,
+        )
+        return response.choices[0].message.content or ""
+
+    return RunnableLambda(_call)
 
 # Logging configuration
 logging_enabled = False  # Set to False to disable logging to files
@@ -128,8 +152,8 @@ if uploaded_file and api_key and translate_button:
         logger.info(f"Starting translation process for file: {uploaded_file.name} to {target_language}")
         
         # Initialize OpenAI
-        llm = ChatOpenAI(openai_api_key=api_key, model_name="gpt-4-turbo")
-        logger.info("Initialized OpenAI LLM with model: gpt-4-turbo")
+        llm = f_make_llm(api_key)
+        logger.info(f"Initialized OpenAI LLM with model: {STRTRANSLATIONMODEL}")
         
         # Read file content
         try:
