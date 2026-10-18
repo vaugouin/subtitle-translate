@@ -23,9 +23,7 @@ Subtitle Translator is a Streamlit-based application that allows users to easily
 - OpenAI API key
 - Required Python packages (see `requirements.txt`):
   - streamlit==1.32.0
-  - langchain-openai==0.0.8
-  - langchain==0.1.11
-  - langchain-core==0.1.31
+  - openai>=1.55,<2
 
 ## Installation
 
@@ -82,7 +80,7 @@ This project is open source and available for personal and commercial use.
 ## Acknowledgements
 
 - Built with [Streamlit](https://streamlit.io/)
-- Powered by [LangChain](https://www.langchain.com/) and [OpenAI](https://openai.com/)
+- Powered by [OpenAI](https://openai.com/)
 
 ## Recent Improvements
 

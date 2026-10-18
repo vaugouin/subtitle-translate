@@ -1,9 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-from langchain_core.runnables import RunnableLambda
-from langchain.text_splitter import CharacterTextSplitter
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 import time
 import os
 import logging
@@ -15,24 +11,44 @@ from datetime import datetime
 # subtitles to French: every delimiter kept, line breaks kept, more idiomatic, about 1.5 s per call
 # against 4 s. The GPT-6 line refuses an explicit temperature, which the old langchain-openai
 # ChatOpenAI always sent, so the call goes through the OpenAI SDK with a low reasoning effort.
-# OPENAI_MODEL overrides it.
+# OPENAI_MODEL overrides it. LangChain is gone since 2026-10-18: it only rendered a prompt,
+# split on blank lines and read the reply text, which the three helpers below do directly.
 STRTRANSLATIONMODEL = os.getenv("OPENAI_MODEL", "gpt-6-sol")
 
 
-def f_make_llm(api_key: str, model: str = STRTRANSLATIONMODEL):
-    """Return a runnable that sends a rendered prompt to `model` and returns its text."""
+def f_make_translator(api_key: str, model: str = STRTRANSLATIONMODEL):
+    """Return a function that sends a rendered prompt to `model` and returns its text."""
     client = OpenAI(api_key=api_key)
     sampling = {"temperature": 0.7} if model.startswith("gpt-4") else {"reasoning_effort": "low"}
 
-    def _call(prompt_value) -> str:
+    def _translate(prompt: str) -> str:
         response = client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": prompt_value.to_string()}],
+            messages=[{"role": "user", "content": prompt}],
             **sampling,
         )
         return response.choices[0].message.content or ""
 
-    return RunnableLambda(_call)
+    return _translate
+
+
+def f_split_srt_blocks(text: str, separator: str = "\n\n", chunk_size: int = 20) -> list:
+    """Split on blank lines the way LangChain's CharacterTextSplitter did with these settings.
+
+    Pieces are merged while they fit in chunk_size, so with 20 characters every real subtitle
+    block (its timestamp line alone is 29) stays a chunk of its own; only tiny stray fragments
+    merge. Chunks are stripped and empty ones dropped.
+    """
+    chunks, current, total = [], [], 0
+    for piece in (p for p in text.split(separator) if p != ""):
+        if current and total + len(piece) + len(separator) > chunk_size:
+            chunks.append(separator.join(current).strip())
+            current, total = [], 0
+        total += len(piece) + (len(separator) if current else 0)
+        current.append(piece)
+    if current:
+        chunks.append(separator.join(current).strip())
+    return [c for c in chunks if c]
 
 # Logging configuration
 logging_enabled = False  # Set to False to disable logging to files
@@ -152,7 +168,7 @@ if uploaded_file and api_key and translate_button:
         logger.info(f"Starting translation process for file: {uploaded_file.name} to {target_language}")
         
         # Initialize OpenAI
-        llm = f_make_llm(api_key)
+        translate = f_make_translator(api_key)
         logger.info(f"Initialized OpenAI LLM with model: {STRTRANSLATIONMODEL}")
         
         # Read file content
@@ -181,9 +197,8 @@ if uploaded_file and api_key and translate_button:
                         raise
         
         # Text splitting
-        text_splitter = CharacterTextSplitter(separator="\n\n", chunk_size=20, chunk_overlap=0)
         try:
-            chunks = text_splitter.split_text(srt_text)
+            chunks = f_split_srt_blocks(srt_text)
             logger.info(f"Split text into {len(chunks)} chunks with chunk_size=20")
             
             # Log some sample chunks for debugging
@@ -225,14 +240,6 @@ if uploaded_file and api_key and translate_button:
         # Define a unique delimiter for chunk separation
         CHUNK_DELIMITER = "###CHUNK_DELIMITER###"
         
-        # Prompt templates - one for individual chunks and one for batch translation
-        translate_chunk_prompt_template = """You are an experienced translator to {target_language}. 
-        Translate the following subtitle text to {target_language}.
-        Do not add any comment to the answer, only the translated text. 
-        Text: {chunk}"""
-        translate_chunk_prompt = PromptTemplate.from_template(translate_chunk_prompt_template)
-        translate_chunk_chain = translate_chunk_prompt | llm | StrOutputParser()
-        
         # Batch translation prompt template
         batch_translate_prompt_template = """You are an experienced translator to {target_language}.
         Translate the following subtitle texts to {target_language}.
@@ -242,9 +249,7 @@ if uploaded_file and api_key and translate_button:
         
         Text to translate:
         {batch_chunks}"""
-        batch_translate_prompt = PromptTemplate.from_template(batch_translate_prompt_template)
-        batch_translate_chain = batch_translate_prompt | llm | StrOutputParser()
-        logger.info("Created translation chains with prompt templates")
+        logger.info("Prepared the batch translation prompt")
         
         # Process chunks with progress tracking
         translations = []
@@ -302,11 +307,11 @@ if uploaded_file and api_key and translate_button:
                         logger.info(f"Combined content preview: {joined_chunks[:100]}...")
                         
                         # Translate the entire group at once
-                        translation_result = batch_translate_chain.invoke({
-                            'batch_chunks': joined_chunks,
-                            'target_language': target_language,
-                            'delimiter': CHUNK_DELIMITER
-                        })
+                        translation_result = translate(batch_translate_prompt_template.format(
+                            batch_chunks=joined_chunks,
+                            target_language=target_language,
+                            delimiter=CHUNK_DELIMITER
+                        ))
                         
                         # Split the result back into individual translations
                         group_translations = translation_result.split(CHUNK_DELIMITER)
