@@ -4,6 +4,38 @@ import os
 import argparse
 from pathlib import Path
 
+def f_split_srt_blocks(text: str, separator: str = "\n\n", chunk_size: int = 20) -> list:
+    """Split SRT cues without depending on the uploaded file's line endings.
+
+    For the default SRT separator, normalize CRLF/lone CR, an initial Unicode
+    BOM and whitespace-only blank lines. Cue numbers, timestamps and multiline
+    text are retained, with LF inside each returned chunk. Keep the previous
+    size-based grouping for custom separators and larger chunk sizes; a cue is
+    never cut merely because it exceeds chunk_size.
+    """
+    if separator == "\n\n":
+        text = text.replace("\r\n", "\n").replace("\r", "\n").removeprefix("\ufeff")
+        pieces = (
+            piece.strip()
+            for piece in re.split(r"\n[ \t]*\n(?:[ \t]*\n)*", text)
+        )
+    else:
+        pieces = (piece for piece in text.split(separator) if piece != "")
+
+    chunks, current, total = [], [], 0
+    for piece in pieces:
+        if not piece:
+            continue
+        if current and total + len(piece) + len(separator) > chunk_size:
+            chunks.append(separator.join(current).strip())
+            current, total = [], 0
+        total += len(piece) + (len(separator) if current else 0)
+        current.append(piece)
+    if current:
+        chunks.append(separator.join(current).strip())
+    return [chunk for chunk in chunks if chunk]
+
+
 def normalize_srt(input_file, output_file=None):
     """
     Normalizes SRT subtitle file by ensuring consistent newline characters

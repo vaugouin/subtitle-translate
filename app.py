@@ -6,13 +6,14 @@ import logging
 import traceback
 import sys
 from datetime import datetime
+from normalize_srt import f_split_srt_blocks
 
 # LLM-TASKS-006 (2026-10-17): gpt-4-turbo is replaced by gpt-6-sol. Same batch prompt on 20 film
 # subtitles to French: every delimiter kept, line breaks kept, more idiomatic, about 1.5 s per call
 # against 4 s. The GPT-6 line refuses an explicit temperature, which the old langchain-openai
 # ChatOpenAI always sent, so the call goes through the OpenAI SDK with a low reasoning effort.
 # OPENAI_MODEL overrides it. LangChain is gone since 2026-10-18: it only rendered a prompt,
-# split on blank lines and read the reply text, which the three helpers below do directly.
+# split on blank lines and read the reply text, now handled by the SDK helpers and imported splitter.
 STRTRANSLATIONMODEL = os.getenv("OPENAI_MODEL", "gpt-6-sol")
 
 
@@ -32,23 +33,6 @@ def f_make_translator(api_key: str, model: str = STRTRANSLATIONMODEL):
     return _translate
 
 
-def f_split_srt_blocks(text: str, separator: str = "\n\n", chunk_size: int = 20) -> list:
-    """Split on blank lines the way LangChain's CharacterTextSplitter did with these settings.
-
-    Pieces are merged while they fit in chunk_size, so with 20 characters every real subtitle
-    block (its timestamp line alone is 29) stays a chunk of its own; only tiny stray fragments
-    merge. Chunks are stripped and empty ones dropped.
-    """
-    chunks, current, total = [], [], 0
-    for piece in (p for p in text.split(separator) if p != ""):
-        if current and total + len(piece) + len(separator) > chunk_size:
-            chunks.append(separator.join(current).strip())
-            current, total = [], 0
-        total += len(piece) + (len(separator) if current else 0)
-        current.append(piece)
-    if current:
-        chunks.append(separator.join(current).strip())
-    return [c for c in chunks if c]
 
 # Logging configuration
 logging_enabled = False  # Set to False to disable logging to files
