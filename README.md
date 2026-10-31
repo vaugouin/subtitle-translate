@@ -24,6 +24,9 @@ Subtitle Translator is a Streamlit-based application that allows users to easily
 - Required Python packages (see `requirements.txt`):
   - streamlit==1.32.0
   - openai>=1.55,<2
+  - python-dotenv>=1.0.0
+
+The translation model defaults to `gpt-6-sol` (OpenAI SDK, low reasoning effort); set the `OPENAI_MODEL` environment variable to override it.
 
 ## Installation
 
@@ -59,6 +62,8 @@ Alternatively, use docker-compose:
 docker-compose up
 ```
 
+In production the app runs in Docker through `subtitle-translate.sh` (`docker compose up -d --build`).
+
 ## Usage
 
 1. Enter your OpenAI API key in the sidebar
@@ -73,9 +78,13 @@ docker-compose up
 
 The application includes comprehensive logging capabilities that can be enabled by setting `logging_enabled = True` in the `app.py` file. Logs are stored in the `logs` directory.
 
+## Tests
+
+`normalize_srt.py` holds the SRT cue splitter (`f_split_srt_blocks`) used by `app.py`, plus a normalization CLI. `test-srt-blocks.py` checks the splitter offline (no Streamlit, no API key): `uv run --no-project python -B test-srt-blocks.py`.
+
 ## License
 
-This project is open source and available for personal and commercial use.
+MIT License, see [LICENSE](LICENSE).
 
 ## Acknowledgements
 
